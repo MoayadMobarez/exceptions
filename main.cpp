@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include "utils.hpp"
+#include "bcrypt/BCrypt.hpp"
 
 int main() {
     std::map<std::string, std::string> accounts;
@@ -48,7 +49,9 @@ int main() {
                 std::cout << "Enter password: ";
                 std::getline(std::cin, password);
 
-                accounts.insert({email, password});
+                std::string hashed_password = BCrypt::generateHash(password);
+                accounts.insert({email, hashed_password});
+
                 std::cout << "Sign up successful.\n";
             }
             else if (choice == 2) {
@@ -63,7 +66,8 @@ int main() {
 
                 auto it = accounts.find(email);
 
-                if (it != accounts.end() && it->second == password) {
+                if (it != accounts.end() &&
+                    BCrypt::validatePassword(password, it->second)) {
                     logged_in = true;
                     current_user = email;
                     std::cout << "Login successful.\n";
